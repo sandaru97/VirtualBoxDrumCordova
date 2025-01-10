@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget id="com.example.virtualboxdrum" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Virtual Box Drum</name>
+    <description>
+        A free virtual box drum with reverb, metronome.
+    </description>
+    <author email="sandaruadithya@gmail.com" href="http://example.com/">
+        Sandaru Adithya
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+
+    <!-- Android Platform Icons -->
+    <platform name="android">
+        <icon src="www/img/logo.png" density="ldpi" />
+       
+    </platform>
+
+    <!-- iOS Platform Icons -->
+    <platform name="ios">
+        <icon src="www/img/logo.png" width="57" height="57" />
+         </platform>
+</widget>
