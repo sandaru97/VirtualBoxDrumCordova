@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>B□xDrum</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -12,15 +12,38 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background-color: #d8c18c;
-      height: 70vh;
+      height: 95vh;
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
+      max-width: 100vw;
+      box-sizing: border-box;
+      margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw; /* Viewport width */
+  height: 56.25vw; /* This is 9/16 of 100vw (16:9 aspect ratio) */
+  max-width: 100%; 
+  max-height: 100%;
+  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
     }
     .top-bar {
       position: fixed;
-      bottom: 10px;
+      bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 999;
@@ -68,7 +91,9 @@
       padding: 10px;
       box-sizing: border-box;
       flex-grow: 1;
-      height: 60%;
+      height: 50%;
+      max-height: 430px;
+
     }
     .drum-pad {
       background-color: #c2a476;
@@ -170,105 +195,51 @@
     .help-popup p,.help-popup h2,.help-popup ul {
       color: #000; 
     }
-    body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #d8c18c;
-  height: 80vh; /* Set height to 100% of the viewport */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* Align the content at the top */
-  margin-top: 10%;
-}
-
-.drum-pad-container {
-  width: 100%;
-  max-width: 400px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 10px;
-  padding: 10px;
-  box-sizing: border-box;
-  flex-grow: 1;
-  height: 50%;
-  margin-bottom: 130px;
-}
-
-.top-bar {
-  position: fixed;
-  bottom: 70px; /* Ensure it stays at the bottom of the screen */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 370px;
-}
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #d8c18c;
-  height: 95vh; /* Use 100% of the viewport height */
-  width: 100%; /* Set the width to 100% of the                           viewport */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* Align the content at the top */
-  max-width: 100vw; /* Prevent overflow */
-  box-sizing: border-box; /* Include padding and border in width/height calculation */
-}
-@keyframes rotateSquare {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-h1 b {
-  display: inline-block;
-  animation: rotateSquare 4s linear infinite;
-}
-@keyframes pulseSquare {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.6); /* Adjust the scale as needed for the desired effect */
-  }
-}
-
-h1 b {
-  display: inline-block;
-  animation: pulseSquare 1.5s ease-in-out infinite; /* Adjust the duration for a smoother pulse */
-}
-
+    @keyframes rotateSquare {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    h1 b {
+      display: inline-block;
+      animation: rotateSquare 4s linear infinite;
+    }
+    @keyframes pulseSquare {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.6);
+      }
+    }
+    h1 b {
+      display: inline-block;
+      animation: pulseSquare 1.5s ease-in-out infinite;
+    }
   </style>
 </head>
 <body>
-  <h1 style="
-  
-  color: #000;font-size: 250%;">&nbsp;&nbsp;B<b>&#x25C7;</b>XDRUM&trade;&nbsp;&nbsp;</h1>
+  <h1 style="color: #000;font-size: 250%;">&nbsp;&nbsp;B<b>&#x25C7;</b>XDRUM&trade;&nbsp;&nbsp;</h1>
   <div class="drum-pad-container">
-    <div class="drum-pad big-bass-brush" data-key="1" onclick="handlePadClick(event); playSound('Kick.mp3')">
+    <div class="drum-pad big-bass-brush" data-key="1" ontouchstart="handlePadClick(event, 'Kick.mp3')" >
       <i class="fas fa-drum"></i>
       Bass<br>(1)
     </div>
-    <div class="drum-pad" data-key="d" onclick="handlePadClick(event); playSound('KickBrush.mp3')"><i class="fas fa-brush"></i> Kick 2<br>(4)</div>
-
-    <div class="drum-pad" data-key="w" onclick="handlePadClick(event); playSound('Snare.mp3')"><i class="fas fa-hand-paper"></i> Snare<br>(2)</div>
-    <div class="drum-pad" data-key="s" onclick="handlePadClick(event); playSound('Accent.mp3')"><i class="fas fa-hand-rock"></i> Accent<br>(3)</div>
-    <div class="drum-pad" data-key="f" onclick="handlePadClick(event); playSound('Rim.mp3')"><i class="fas fa-drum-steelpan"></i> Rim<br>(5)</div>
+    <div class="drum-pad" data-key="d" ontouchstart="handlePadClick(event, 'KickBrush.mp3')" >
+      <i class="fas fa-brush"></i> Kick 2<br>(4)
+    </div>
+    <div class="drum-pad" data-key="w" ontouchstart="handlePadClick(event, 'Snare.mp3')">
+      <i class="fas fa-hand-paper"></i> Snare<br>(2)
+    </div>
+    <div class="drum-pad" data-key="s" ontouchstart="handlePadClick(event, 'Accent.mp3')" >
+      <i class="fas fa-hand-rock"></i> Accent<br>(3)
+    </div>
+    <div class="drum-pad" data-key="f" ontouchstart="handlePadClick(event, 'Rim.mp3')" >
+      <i class="fas fa-drum-steelpan"></i> Rim<br>(5)
+    </div>
   </div>
 
   <div class="top-bar">
@@ -277,9 +248,6 @@ h1 b {
     <button onclick="toggleSettingsPopup()"><i class="fas fa-cog"></i></button>
     <button onclick="toggleHelpPopup()"><i class="fas fa-question-circle"></i></button>
   </div>
-
-  
-
 
   <div class="settings-popup" id="settingsPopup">
     <div class="close-button-container">
@@ -295,46 +263,54 @@ h1 b {
     </div>
     <div class="slider-container bpm-controls">
       <label class="slider-label">Metronome (<span id="bpmValue">120</span> BPM)</label>
-      <input type="range" class="slider" id="bpmSlider" min="60" max="180" value="120" oninput="updateBPM()">
-      
+      <input type="range" class="slider" id="bpmSlider" min="30" max="180" value="120" oninput="updateBPM()">
       <div class="toggle-container">
         <label class="slider-label">Metronome</label>
         <label class="toggle-switch">
-          <input type="checkbox" id="metronomeToggle">
+          <input type="checkbox" id="metronome-toggle" onchange="toggleMetronome()">
           <span class="slider-round"></span>
         </label>
       </div>
     </div>
-    
   </div>
 
   <div class="help-popup" id="helpPopup">
     <div class="close-button-container">
         <button class="close-button" onclick="toggleHelpPopup()">X</button>
     </div>
-    <h2 style="border-bottom: 1px solid black;">Help - B□xDrum</h2>
+    <h2 style="border-bottom: 3px solid #ffd700;">Help - B&#x25C7;xDrum</h2>
     <p><strong>How to Use:</strong></p>
     <ul>
-        <li><strong>Playing Sounds:</strong> Click on the drum pads to play different sounds. Each pad represents a different percussion instrument.</li>
+        <li><strong>Playing Sounds:</strong> Click on the drum pads to play different sounds. This app supports multitouch</li>
         <li><strong>Volume Control:</strong> Use the volume slider in the settings to adjust the sound level.</li>
         <li><strong>Metronome:</strong> Turn the metronome on or off using the toggle switch. Adjust the BPM (beats per minute) using the slider.</li>
         <li><strong>Recording:</strong> Click the microphone button to start recording your session. Use the stop button to finish recording.</li>
         <li><strong>Settings:</strong> Access settings by clicking the gear icon. Here, you can adjust volume, reverb, and metronome settings.</li>
     </ul>
     <p>For further assistance, please refer to the user manual or contact support.</p>
-</div>
+  </div>
 
   <script>
+    let activePads = {};
+
     function playSound(filename) {
       let audio = new Audio(filename);
       audio.play();
     }
 
-    function handlePadClick(event) {
-      event.target.classList.add('clicked');
-      setTimeout(() => {
-        event.target.classList.remove('clicked');
-      }, 200);
+    function handlePadClick(event, sound) {
+      const pad = event.target;
+      const padId = pad.dataset.key;
+
+      if (!activePads[padId]) {
+        pad.classList.add('clicked');
+        activePads[padId] = true;
+        playSound(sound);
+        setTimeout(() => {
+          pad.classList.remove('clicked');
+          activePads[padId] = false;
+        }, 200);
+      }
     }
 
     function toggleSettingsPopup() {
@@ -346,9 +322,271 @@ h1 b {
     }
 
     function updateBPM() {
-      const bpm = document.getElementById('bpmSlider').value;
-      document.getElementById('bpmValue').textContent = bpm;
+      const bpmValue = document.getElementById('bpmSlider').value;
+      document.getElementById('bpmValue').innerText = bpmValue;
     }
+
+    function toggleRecord() {
+      // Add your recording functionality here
+    }
+
+    function stopRecording() {
+      // Add your stop recording functionality here
+    }
+  </script>
+  <script>
+    function playSound(filename) {
+      const audio = new Audio(filename);
+      audio.play();
+    }
+    
+    document.querySelectorAll('.drum-pad').forEach(pad => {
+      pad.addEventListener('mousedown', () => playSound(pad.dataset.sound));
+      pad.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevents delay and unwanted scrolling
+        playSound(pad.dataset.sound);
+      }, { passive: false });
+    });
+    //metronome code
+   
+
+// Ensure sound is loaded before playing
+metronomeSound.load();
+
+function playMetronome() {
+    clearInterval(metronomeInterval);
+    if (metronomeToggle?.checked) {
+        const bpm = parseInt(bpmSlider?.value);
+        if (isNaN(bpm) || bpm <= 0) return;
+        const interval = (60 / bpm) * 1000;
+        metronomeInterval = setInterval(() => {
+            metronomeSound.currentTime = 0;
+            metronomeSound.play().catch(error => console.error("Audio play error:", error));
+        }, interval);
+    }
+}
+
+bpmSlider?.addEventListener('input', () => {
+    if (metronomeToggle?.checked) {
+        playMetronome();
+    }
+});
+
+metronomeToggle?.addEventListener('change', () => {
+    if (metronomeToggle?.checked) {
+        playMetronome();
+    } else {
+        clearInterval(metronomeInterval);
+    }
+});
+function toggleMetronome() {
+    if (metronomeToggle.checked) {
+        playMetronome();
+    } else {
+        clearInterval(metronomeInterval);
+    }
+}
+
+function updateBpm() {
+    if (metronomeToggle.checked) {
+        playMetronome();
+    }
+}
+
+
+// Ensure sound is loaded before playing
+metronomeSound.load();
+
+function playMetronome() {
+    console.log("Attempting to play metronome...");
+    clearInterval(metronomeInterval);
+    if (metronomeToggle?.checked) {
+        const bpm = parseInt(bpmSlider?.value);
+        if (isNaN(bpm) || bpm <= 0) return;
+        const interval = (60 / bpm) * 1000;
+        console.log(`Metronome interval set: ${interval}ms`);
+        metronomeInterval = setInterval(() => {
+            metronomeSound.currentTime = 0; // Reset to start
+            metronomeSound.play().catch(error => console.error("Audio play error:", error));
+        }, interval);
+    }
+}
+
+bpmSlider?.addEventListener('input', () => {
+    if (metronomeToggle?.checked) {
+        playMetronome();
+    }
+});
+
+metronomeToggle?.addEventListener('change', () => {
+    if (metronomeToggle?.checked) {
+        playMetronome();
+    } else {
+        clearInterval(metronomeInterval);
+    }
+});
+
+function toggleMetronome() {
+    if (metronomeToggle.checked) {
+        playMetronome();
+    } else {
+        clearInterval(metronomeInterval);
+    }
+}
+
+function updateBpm() {
+    if (metronomeToggle.checked) {
+        playMetronome();
+    }
+}
+
+
+// Ensure sound is loaded before playing
+metronomeSound.load();
+
+function playMetronome() {
+    console.log("Attempting to play metronome...");
+    clearInterval(metronomeInterval);
+    if (metronomeToggle?.checked) {
+        const bpm = parseInt(bpmSlider?.value);
+        if (isNaN(bpm) || bpm <= 0) return;
+        const interval = (60 / bpm) * 1000;
+        console.log(`Metronome interval set: ${interval}ms`);
+        metronomeInterval = setInterval(() => {
+            metronomeSound.currentTime = 0; // Reset to start
+            metronomeSound.play().catch(error => console.error("Audio play error:", error));
+        }, interval);
+    }
+}
+
+bpmSlider?.addEventListener('input', () => {
+    if (metronomeToggle?.checked) {
+        playMetronome();
+    }
+});
+
+metronomeToggle?.addEventListener('change', () => {
+    if (metronomeToggle?.checked) {
+        playMetronome();
+    } else {
+        clearInterval(metronomeInterval);
+    }
+});
+const bpmSlider = document.getElementById('bpmSlider');
+const metronomeToggle = document.getElementById('metronome-toggle');
+const metronomeSound = new Audio('metronome.mp3');
+let metronomeInterval;
+
+// Ensure sound is loaded before playing
+metronomeSound.load();
+
+function playMetronome() {
+    console.log("Attempting to play metronome...");
+    clearInterval(metronomeInterval);
+    if (metronomeToggle?.checked) {
+        const bpm = parseInt(bpmSlider?.value);
+        if (isNaN(bpm) || bpm <= 0) return;
+        const interval = (60 / bpm) * 1000;
+        console.log(`Metronome interval set: ${interval}ms`);
+        metronomeInterval = setInterval(() => {
+            metronomeSound.currentTime = 0; // Reset to start
+            metronomeSound.play().catch(error => console.error("Audio play error:", error));
+        }, interval);
+    }
+}
+
+bpmSlider?.addEventListener('input', () => {
+    if (metronomeToggle?.checked) {
+        playMetronome();
+    }
+});
+
+metronomeToggle?.addEventListener('change', () => {
+    if (metronomeToggle?.checked) {
+        playMetronome();
+    } else {
+        clearInterval(metronomeInterval);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const bpmSlider = document.getElementById('bpmSlider');
+    const metronomeToggle = document.getElementById('metronome-toggle');
+    const metronomeSound = new Audio('metronome.mp3');
+    let metronomeInterval;
+
+    // Ensure sound is loaded before playing
+    metronomeSound.load();
+
+    function playMetronome() {
+        console.log("Attempting to play metronome...");
+        clearInterval(metronomeInterval);
+        if (metronomeToggle?.checked) {
+            const bpm = parseInt(bpmSlider?.value);
+            if (isNaN(bpm) || bpm <= 0) return;
+            const interval = (60 / bpm) * 1000;
+            console.log(`Metronome interval set: ${interval}ms`);
+            metronomeInterval = setInterval(() => {
+                metronomeSound.currentTime = 0; // Reset to start
+                metronomeSound.play().catch(error => console.error("Audio play error:", error));
+            }, interval);
+        }
+    }
+
+    bpmSlider?.addEventListener('input', () => {
+        if (metronomeToggle?.checked) {
+            playMetronome();
+        }
+    });
+
+    metronomeToggle?.addEventListener('change', () => {
+        if (metronomeToggle?.checked) {
+            playMetronome();
+        } else {
+            clearInterval(metronomeInterval);
+        }
+    });
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const bpmSlider = document.getElementById('bpmSlider');
+    const metronomeToggle = document.getElementById('metronome-toggle');
+    let metronomeSound;
+    let metronomeInterval;
+
+    // Initialize the sound after DOM content is loaded
+    metronomeSound = new Audio('metronome.mp3');
+    metronomeSound.load(); // Ensure sound is ready to play
+
+    function playMetronome() {
+        console.log("Attempting to play metronome...");
+        clearInterval(metronomeInterval);
+        if (metronomeToggle?.checked) {
+            const bpm = parseInt(bpmSlider?.value);
+            if (isNaN(bpm) || bpm <= 0) return;
+            const interval = (60 / bpm) * 1000;
+            console.log(`Metronome interval set: ${interval}ms`);
+            metronomeInterval = setInterval(() => {
+                metronomeSound.currentTime = 0; // Reset to start
+                metronomeSound.play().catch(error => console.error("Audio play error:", error));
+            }, interval);
+        }
+    }
+
+    bpmSlider?.addEventListener('input', () => {
+        if (metronomeToggle?.checked) {
+            playMetronome();
+        }
+    });
+
+    metronomeToggle?.addEventListener('change', () => {
+        if (metronomeToggle?.checked) {
+            playMetronome();
+        } else {
+            clearInterval(metronomeInterval);
+        }
+    });
+});
+
   </script>
 </body>
 </html>
