@@ -135,7 +135,8 @@
             background-color: #c2a476;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7); /* Tripled shadow effect */
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7);
+            /* Tripled shadow effect */
             z-index: 9999;
             width: 80%;
             max-width: 360px;
@@ -207,7 +208,7 @@
 </head>
 
 <body>
-    <h1 style="color: #000; font-size: 250%;">&nbsp;&nbsp;B<b>&#x25C7;</b>XDRUM&trade;&nbsp;&nbsp;</h1>
+    <h1 style="color: #000; font-size: 250%;">&nbsp;&nbsp;B<b>&#9744;</b>XDRUM&trade;&nbsp;&nbsp;</h1>
     <div class="drum-pad-container">
         <div class="drum-pad big-bass-brush" data-key="1" data-sound="Kick">
             <i class="fas fa-drum"></i> Bass<br>
@@ -265,7 +266,7 @@
         <h2 style="border-bottom: 3px solid #ffd700; padding-bottom: 5px;">Help - B&#x25C7;xDrum</h2>
         <div class="help-section">
             <p>To Play, Tap drum pads (multitouch supported).</p>
-        
+
             <ul>
                 <li><strong>Volume:</strong> Adjust via settings slider.</li>
                 <li><strong>Metronome:</strong> Toggle on/off, adjust BPM.</li>
@@ -273,7 +274,7 @@
                 <li><strong>Reverb:</strong> Adjust via settings slider.</li>
             </ul>
         </div>
-       
+
     </div>
 
     <script>
@@ -351,52 +352,167 @@
 
             audio.addEventListener('ended', () => delete playingSounds[padId]);
 
-            if (recording) recordAudio(audio);
+            // Only record if MediaStream is available and recording is active
+            if (recording && audioContext && audioContext.createMediaElementSource) {
+                const source = audioContext.createMediaElementSource(audio);
+                source.connect(audioContext.destination);
+                if (recorder) { // Ensure recorder is initialized before attempting to record
+                    recorder.record();
+                }
+            }
         }
 
+        // --- Cordova Permissions and File Saving Logic ---
+
+        document.addEventListener('deviceready', onDeviceReady, false);
+
+        function onDeviceReady() {
+            console.log("Cordova deviceready event fired.");
+            // Request microphone permission on deviceready
+            requestMicrophonePermission();
+
+            // Initialize audio context on first user interaction if not already done
+            document.addEventListener('click', initializeAudioContext, { once: true });
+        }
+
+        function requestMicrophonePermission() {
+            // Check for cordova.plugins.permissions for Android, otherwise proceed for iOS (config.xml handles it)
+            if (window.cordova && cordova.plugins && cordova.plugins.permissions) {
+                const permissions = cordova.plugins.permissions;
+                permissions.checkPermission(permissions.RECORD_AUDIO, function(status) {
+                    if (status.hasPermission) {
+                        console.log("RECORD_AUDIO permission is granted.");
+                        // Proceed to initialize recorder if needed
+                        initializeRecorder();
+                    } else {
+                        console.warn("RECORD_AUDIO permission is NOT granted. Requesting...");
+                        permissions.requestPermission(permissions.RECORD_AUDIO, function(status) {
+                            if (status.hasPermission) {
+                                console.log("RECORD_AUDIO permission granted after request.");
+                                initializeRecorder();
+                            } else {
+                                console.error("RECORD_AUDIO permission DENIED. Recording functionality will be limited.");
+                                alert("Microphone access is required for recording. Please enable it in app settings.");
+                            }
+                        }, function(error) {
+                            console.error("Error requesting RECORD_AUDIO permission: " + error);
+                            alert("Error requesting microphone permission.");
+                        });
+                    }
+                }, function(error) {
+                    console.error("Error checking RECORD_AUDIO permission: " + error);
+                });
+            } else {
+                console.log("Permissions plugin not found or not on Android. Proceeding without explicit runtime permission check for microphone.");
+                // For browsers or iOS, MediaDevices.getUserMedia will prompt
+                initializeRecorder();
+            }
+        }
+
+        function initializeRecorder() {
+            // This now gets called after microphone permission is potentially granted
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const mediaStreamSource = audioContext.createMediaStreamSource(stream);
+                        recorder = new Recorder(mediaStreamSource, { numChannels: 1 });
+                        console.log("Recorder initialized with microphone stream.");
+                    })
+                    .catch(err => {
+                        console.error("Could not get microphone stream: ", err);
+                        alert("Microphone access denied. Recording is not possible.");
+                    });
+            } else {
+                console.warn("getUserMedia not supported on this device/browser for recording.");
+                alert("Recording is not supported on this device.");
+            }
+        }
+
+
         function toggleRecord() {
+            if (!recorder) {
+                alert("Microphone not ready for recording. Please allow microphone access.");
+                return;
+            }
+
             recording = !recording;
+            const recordButton = document.querySelector('.record-button');
             if (recording) {
+                recordButton.style.color = 'red'; // Indicate recording is active
                 recordedChunks = [];
-                startRecording();
+                recorder.record(); // Start recorder
                 alert("Recording started!");
             } else {
-                stopRecording();
-                alert("Recording stopped!");
+                recordButton.style.color = 'black'; // Reset color
+                stopAudioRecording();
             }
         }
 
         function stopRecording() {
             if (recording) {
                 recording = false;
+                const recordButton = document.querySelector('.record-button');
+                recordButton.style.color = 'black'; // Reset color
                 stopAudioRecording();
-                alert("Recording stopped");
             }
-        }
-
-        function recordAudio(audio) {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioContext.createMediaElementSource(audio);
-            source.connect(audioContext.destination);
-            if (!recorder) recorder = new Recorder(source, { numChannels: 1 });
-            recorder.record();
-        }
-
-        function startRecording() {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
 
         function stopAudioRecording() {
             if (recorder) {
                 recorder.stop();
-                recorder.exportWAV(blob => saveRecording(blob));
+                recorder.exportWAV(blob => {
+                    saveRecording(blob);
+                });
                 recorder.clear();
             }
         }
 
         function saveRecording(blob) {
             const fileName = prompt("Enter file name to save as WAV:", "recorded_audio.wav");
-            if (fileName) {
+            if (!fileName) {
+                alert("File name cancelled. Recording not saved.");
+                return;
+            }
+
+            // --- Permission Check for Write_External_Storage (Android specific) ---
+            if (window.cordova && cordova.plugins && cordova.plugins.permissions && cordova.platformId === 'android') {
+                const permissions = cordova.plugins.permissions;
+                permissions.checkPermission(permissions.WRITE_EXTERNAL_STORAGE, function(status) {
+                    if (status.hasPermission) {
+                        console.log("WRITE_EXTERNAL_STORAGE permission is granted. Saving file...");
+                        writeBlobToFile(blob, fileName);
+                    } else {
+                        console.warn("WRITE_EXTERNAL_STORAGE permission is NOT granted. Requesting...");
+                        permissions.requestPermission(permissions.WRITE_EXTERNAL_STORAGE, function(status) {
+                            if (status.hasPermission) {
+                                console.log("WRITE_EXTERNAL_STORAGE permission granted after request. Saving file...");
+                                writeBlobToFile(blob, fileName);
+                            } else {
+                                console.error("WRITE_EXTERNAL_STORAGE permission DENIED. Cannot save file to external storage.");
+                                alert("Permission to write to storage denied. Cannot save recording. Please enable storage permission in app settings.");
+                                // Fallback to browser download if permission is denied (might not work well on all Android versions)
+                                const a = document.createElement("a");
+                                a.style.display = "none";
+                                a.href = URL.createObjectURL(blob);
+                                a.download = fileName;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(a.href);
+                                alert("Attempting browser download as fallback (might not work).");
+                            }
+                        }, function(error) {
+                            console.error("Error requesting WRITE_EXTERNAL_STORAGE permission: " + error);
+                            alert("Error requesting storage permission.");
+                        });
+                    }
+                }, function(error) {
+                    console.error("Error checking WRITE_EXTERNAL_STORAGE permission: " + error);
+                });
+            } else {
+                // For iOS, browsers, or other platforms, use the standard download method
+                console.log("Not on Android or permissions plugin not found. Using standard download method.");
                 const a = document.createElement("a");
                 a.style.display = "none";
                 a.href = URL.createObjectURL(blob);
@@ -405,8 +521,49 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(a.href);
+                alert("Recording saved via browser download (check your Downloads folder).");
             }
         }
+
+        function writeBlobToFile(blob, fileName) {
+            if (!window.resolveLocalFileSystemURL || !window.requestFileSystem || !cordova.file) {
+                console.error("Cordova file system API not available. Cannot save file.");
+                alert("File saving functionality not available. Is cordova-plugin-file installed?");
+                return;
+            }
+
+            // Choose a directory to save to. For user-downloadable files, externalRootDirectory or Downloads is common.
+            // Be mindful of Android Scoped Storage (API 29+). externalRootDirectory might be redirected or limited.
+            // For app-specific data, use cordova.file.externalDataDirectory.
+            const targetDirectory = cordova.file.externalRootDirectory || cordova.file.dataDirectory; // Fallback for safety
+
+            window.resolveLocalFileSystemURL(targetDirectory, function(dirEntry) {
+                console.log("Resolved directory entry: " + dirEntry.nativeURL);
+                dirEntry.getFile(fileName, { create: true, exclusive: false }, function(fileEntry) {
+                    fileEntry.createWriter(function(fileWriter) {
+                        fileWriter.onwriteend = function() {
+                            console.log("File write successful: " + fileEntry.nativeURL);
+                            alert("Recording saved to: " + fileEntry.nativeURL);
+                        };
+                        fileWriter.onerror = function(e) {
+                            console.error("File write failed: " + e.toString());
+                            alert("Failed to save recording: " + e.toString());
+                        };
+                        fileWriter.write(blob);
+                    }, function(error) {
+                        console.error("Error creating file writer: " + JSON.stringify(error));
+                        alert("Error preparing to save file.");
+                    });
+                }, function(error) {
+                    console.error("Error getting file: " + JSON.stringify(error));
+                    alert("Error creating file: " + fileName);
+                });
+            }, function(error) {
+                console.error("Error resolving directory: " + JSON.stringify(error));
+                alert("Error accessing storage directory.");
+            });
+        }
+        // --- End Cordova Permissions and File Saving Logic ---
 
         volumeSlider.addEventListener('input', () => {
             volume = volumeSlider.value / 100;
@@ -439,12 +596,19 @@
             });
         });
 
-        function initializeAudioContext() {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        // Initialize audio context on first user interaction if not already done
+        // This is handled by onDeviceReady now, but keeping this for safety on non-Cordova environments
+        // document.addEventListener('click', initializeAudioContext, { once: true });
 
-        document.addEventListener('click', initializeAudioContext, { once: true });
+        // This function will be called on first user gesture (e.g., click) or by onDeviceReady
+        function initializeAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log("AudioContext initialized.");
+            }
+        }
     </script>
+    <script type="text/javascript" src="cordova.js"></script>
 </body>
 
 </html>
